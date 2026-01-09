@@ -73,7 +73,8 @@ Realiza autenticação do usuário.
 Retorno:
 
 json
-Copiar código
+
+
 {
   "accessToken": "...",
   "refreshToken": "..."
@@ -84,7 +85,8 @@ Rota protegida por autenticação.
 Header:
 
 makefile
-Copiar código
+
+
 Authorization: Bearer <accessToken>
 🔁 POST /auth/refresh
 Renova o Access Token usando o Refresh Token.
@@ -92,10 +94,12 @@ Renova o Access Token usando o Refresh Token.
 Body:
 
 json
-Copiar código
+
 {
   "refreshToken": "..."
 }
+
+
 🚪 POST /auth/logout
 Finaliza a sessão do usuário.
 
@@ -107,16 +111,14 @@ Se o token expirar ou for removido, a sessão é invalidada
 Logout remove o token manualmente
 
 ▶️ Como Rodar o Backend
-bash
-Copiar código
+
 npm install
 docker run -d -p 6379:6379 redis
 npm run dev
 Backend disponível em:
 
-arduino
-Copiar código
 http://localhost:3000
+
 🖥️ Frontend – Interface de Autenticação
 Funcionalidades
 Tela de login estilizada
@@ -132,8 +134,8 @@ Consumo automático da API
 Logout funcional
 
 📂 Estrutura do Frontend
-pgsql
-Copiar código
+
+
 src/
 ├── pages/
 │   └── Login.tsx
@@ -144,9 +146,13 @@ src/
 ├── styles/
 │   └── login.css
 ├── App.tsx
+
+
 🔐 Proteção de Rotas
 Rotas privadas verificam se existe um accessToken válido no navegador.
 Caso não exista, o usuário é redirecionado para a tela de login.
+
+---
 
 🔁 Uso do Refresh Token no Frontend
 O Access Token é usado em todas as requisições
@@ -155,24 +161,23 @@ Quando ele expira, o Refresh Token pode ser utilizado para gerar um novo
 
 Isso evita que o usuário precise logar novamente constantemente
 
+---
+
 ▶️ Como Rodar o Frontend
-bash
-Copiar código
+
 npm install
 npm run dev
 Frontend disponível em:
 
-arduino
-Copiar código
 http://localhost:5173
+
+---
+
 🔧 Configuração da API no Frontend
 Arquivo:
 
-bash
-Copiar código
 src/services/api.ts
-ts
-Copiar código
+
 import axios from "axios";
 
 const api = axios.create({
@@ -187,7 +192,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+
 export default api;
+
+---
+
+
 🎯 Fluxo Completo de Autenticação
 Usuário realiza login
 
@@ -204,6 +214,8 @@ Rotas protegidas validam o token
 Sessão pode ser renovada automaticamente
 
 Logout invalida a sessão
+
+---
 
 📌 Considerações Finais
 Este projeto demonstra, de forma prática, a aplicação de:
