@@ -1,73 +1,136 @@
-# React + TypeScript + Vite
+# Frontend – Sistema com Autenticação 🔐⚛️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositório contém o **frontend** de uma aplicação web desenvolvida em **React + TypeScript**, com foco em autenticação de usuários (login, proteção de rotas e logout).
 
-Currently, two official plugins are available:
+O projeto consome uma API backend externa e **não utiliza `.env` no frontend**. Tudo funciona diretamente apontando para a URL da API configurada no serviço Axios.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🧠 Tecnologias Utilizadas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- TypeScript
+- Vite
+- React Router DOM
+- Axios
+- CSS puro (App.css / index.css / login.css)
+- LocalStorage para gerenciamento de tokens
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📁 Estrutura Básica do Projeto
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+src/
+├── pages/
+│ └── Login.tsx
+├── routes/
+│ └── PrivateRoute.tsx
+├── services/
+│ └── api.ts
+├── styles/
+│ └── login.css
+├── App.tsx
+├── main.tsx
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+yaml
+Copiar código
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔐 Funcionalidades Implementadas
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Tela de login com feedback visual:
+  - Mensagem de erro (vermelha)
+  - Mensagem de sucesso (verde)
+- Autenticação via API (`/auth/login`)
+- Armazenamento de `accessToken` e `refreshToken` no `localStorage`
+- Proteção de rotas com `PrivateRoute`
+- Logout limpando tokens e redirecionando para `/login`
+- Redirecionamento automático após login bem-sucedido
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## ▶️ Como Rodar o Projeto Localmente
+
+### 1️⃣ Clone o repositório
+```bash
+git clone https://github.com/seu-usuario/seu-repositorio.git
+2️⃣ Entre na pasta do projeto
+bash
+Copiar código
+cd nome-do-projeto
+3️⃣ Instale as dependências
+bash
+Copiar código
+npm install
+ou, se você gosta de sofrer diferente:
+
+bash
+Copiar código
+yarn
+4️⃣ Rode o projeto
+bash
+Copiar código
+npm run dev
+O frontend estará disponível em:
+
+arduino
+Copiar código
+http://localhost:5173
+🔗 Configuração da API
+O frontend se comunica com o backend através do arquivo:
+
+bash
+Copiar código
+src/services/api.ts
+Exemplo:
+
+ts
+Copiar código
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:3333",
+});
+
+export default api;
+👉 Altere apenas o baseURL para apontar para sua API (local ou em produção).
+
+🚪 Logout
+A função de logout remove os tokens e redireciona o usuário:
+
+ts
+Copiar código
+export function logout() {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  window.location.href = "/login";
+}
+🛡️ Proteção de Rotas
+Rotas privadas são protegidas usando o componente PrivateRoute, que verifica a existência do accessToken no localStorage.
+
+Usuário sem token:
+➡️ redirecionado automaticamente para /login.
+
+📝 Observações Importantes
+Este projeto não possui .env no frontend
+
+Toda a autenticação depende do backend
+
+Tokens são armazenados no localStorage
+
+Ideal para projetos acadêmicos, MVPs e sistemas administrativos
+
+🚀 Possíveis Melhorias Futuras
+Refresh token automático via interceptor
+
+Context API para autenticação
+
+Toasts de feedback
+
+Logout automático ao receber 401
+
+Melhor controle de loading
+
+👨‍💻 Autor
+Projeto desenvolvido para fins de estudo e prática com React, TypeScript e autenticação baseada em tokens.
