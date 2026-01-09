@@ -1,32 +1,28 @@
-# Sistema de Autenticação Completo  
+# Sistema de Autenticação Full Stack
 ## Backend com Fastify + Frontend com React e TypeScript
 
-Este repositório contém a implementação completa de um **sistema de autenticação moderno**, dividido em **backend** e **frontend**, utilizando autenticação baseada em **JWT (Access Token e Refresh Token)** e controle de sessão com **Redis**.
+Este projeto implementa um sistema completo de autenticação utilizando **JWT (Access Token e Refresh Token)**, **Redis** para controle de sessão e um **frontend em React + TypeScript** para consumo da API.
 
-O projeto foi desenvolvido com fins acadêmicos, aplicando conceitos fundamentais de segurança, arquitetura cliente-servidor e consumo de APIs REST.
+O foco é demonstrar, de forma prática, autenticação segura, controle de sessão e integração entre frontend e backend.
 
 ---
 
-# 📌 Visão Geral da Arquitetura
+## 📌 Arquitetura Geral
 
-[ Frontend (React) ]
+Frontend (React)
 |
 | HTTP + JWT
 v
-[ Backend (Fastify) ] ---- Redis (Docker)
+Backend (Fastify) ─── Redis (Docker)
 
 yaml
 Copiar código
 
-- O **frontend** é responsável pela interface e controle de sessão do usuário
-- O **backend** valida credenciais, gera tokens e gerencia sessões
-- O **Redis** armazena o Access Token com TTL para invalidação automática
-
 ---
 
-# 🚀 Tecnologias Utilizadas
+## 🚀 Tecnologias Utilizadas
 
-## Backend
+### Backend
 - Node.js
 - TypeScript
 - Fastify
@@ -35,7 +31,7 @@ Copiar código
 - Redis
 - Docker
 
-## Frontend
+### Frontend
 - React
 - TypeScript
 - Vite
@@ -45,36 +41,34 @@ Copiar código
 
 ---
 
-# 🔐 Backend – Autenticação e Sessão
-
-## Funcionalidades Implementadas
+## 🔐 Funcionalidades do Backend
 
 - Login com email e senha
 - Geração de Access Token (curta duração)
 - Geração de Refresh Token (longa duração)
 - Armazenamento do Access Token no Redis com TTL
-- Renovação automática da sessão
-- Rotas protegidas
-- Logout com invalidação da sessão
+- Rotas protegidas com validação de sessão
+- Renovação automática de sessão
+- Logout com invalidação do token
 
 ---
 
-## 📌 Endpoints do Backend
+## 📌 Endpoints da API
 
 ### 🔑 POST `/auth/login`
-Realiza autenticação do usuário.
 
-**Body:**
+Realiza o login do usuário.
+
+**Body**
 ```json
 {
   "email": "aluno@ifpi.edu.br",
   "password": "123456"
 }
-Retorno:
+Resposta
 
 json
-
-
+Copiar código
 {
   "accessToken": "...",
   "refreshToken": "..."
@@ -82,60 +76,65 @@ json
 🔒 GET /auth/protected
 Rota protegida por autenticação.
 
-Header:
+Header
 
 makefile
-
-
+Copiar código
 Authorization: Bearer <accessToken>
 🔁 POST /auth/refresh
-Renova o Access Token usando o Refresh Token.
+Renova o Access Token utilizando o Refresh Token.
 
-Body:
+Body
 
 json
-
+Copiar código
 {
   "refreshToken": "..."
 }
-
-
 🚪 POST /auth/logout
 Finaliza a sessão do usuário.
 
-🗄️ Redis e Controle de Sessão
-Cada Access Token é salvo no Redis com TTL
+Header
 
-Se o token expirar ou for removido, a sessão é invalidada
+makefile
+Copiar código
+Authorization: Bearer <accessToken>
+🗄️ Controle de Sessão com Redis
+O Access Token é armazenado no Redis
 
-Logout remove o token manualmente
+O TTL acompanha o tempo de expiração do token
+
+Tokens inválidos ou expirados são rejeitados
+
+Logout remove a sessão do cache
 
 ▶️ Como Rodar o Backend
-
+bash
+Copiar código
 npm install
 docker run -d -p 6379:6379 redis
 npm run dev
-Backend disponível em:
+Servidor disponível em:
 
+arduino
+Copiar código
 http://localhost:3000
-
-🖥️ Frontend – Interface de Autenticação
-Funcionalidades
+🖥️ Funcionalidades do Frontend
 Tela de login estilizada
 
-Feedback visual de sucesso e erro
+Feedback visual de erro e sucesso
 
 Armazenamento de tokens no LocalStorage
 
 Proteção de rotas privadas
 
-Consumo automático da API
+Integração direta com a API
 
 Logout funcional
 
 📂 Estrutura do Frontend
-
-
+pgsql
+Copiar código
 src/
 ├── pages/
 │   └── Login.tsx
@@ -146,38 +145,34 @@ src/
 ├── styles/
 │   └── login.css
 ├── App.tsx
+🔐 Proteção de Rotas no Frontend
+Rotas privadas verificam a existência de um accessToken.
+Caso o token não exista, o usuário é redirecionado para a tela de login.
 
+🔁 Estratégia de Refresh Token
+Access Token é usado nas requisições
 
-🔐 Proteção de Rotas
-Rotas privadas verificam se existe um accessToken válido no navegador.
-Caso não exista, o usuário é redirecionado para a tela de login.
+Quando expira, o Refresh Token gera um novo
 
----
+O usuário permanece autenticado
 
-🔁 Uso do Refresh Token no Frontend
-O Access Token é usado em todas as requisições
-
-Quando ele expira, o Refresh Token pode ser utilizado para gerar um novo
-
-Isso evita que o usuário precise logar novamente constantemente
-
----
+A sessão é renovada automaticamente
 
 ▶️ Como Rodar o Frontend
-
+bash
+Copiar código
 npm install
 npm run dev
-Frontend disponível em:
+Aplicação disponível em:
 
+arduino
+Copiar código
 http://localhost:5173
-
----
-
 🔧 Configuração da API no Frontend
-Arquivo:
+Arquivo src/services/api.ts
 
-src/services/api.ts
-
+ts
+Copiar código
 import axios from "axios";
 
 const api = axios.create({
@@ -192,13 +187,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-
 export default api;
-
----
-
-
-🎯 Fluxo Completo de Autenticação
+🔄 Fluxo de Autenticação
 Usuário realiza login
 
 Backend valida credenciais
@@ -211,27 +201,12 @@ Frontend armazena tokens
 
 Rotas protegidas validam o token
 
-Sessão pode ser renovada automaticamente
+Sessão pode ser renovada
 
 Logout invalida a sessão
 
----
-
 📌 Considerações Finais
-Este projeto demonstra, de forma prática, a aplicação de:
-
-Autenticação segura
-
-Controle de sessão
-
-Integração frontend-backend
-
-Uso de cache para gerenciamento de tokens
-
-Boas práticas em aplicações web modernas
+Este projeto demonstra boas práticas de autenticação, segurança e arquitetura em aplicações web modernas, utilizando tecnologias amplamente adotadas no mercado.
 
 👨‍💻 Autor
-Projeto desenvolvido para fins acadêmicos, com foco em aprendizado prático de autenticação, segurança e desenvolvimento web full stack.
-
-
-
+Projeto desenvolvido para fins acadêmicos, com foco em autenticação, segurança e integração frontend-backend.
