@@ -320,6 +320,11 @@ src/
 
 ---
 
+
+# ✅ Repositório do Back-end:
+
+https://github.com/Ikarorj/autentica-o-profissional-fastify-jwt-redis
+
 # 👨‍💻 Autor
 Projeto desenvolvido para fins acadêmicos com foco em aprendizado prático de autenticação, segurança e desenvolvimento full stack.
 
