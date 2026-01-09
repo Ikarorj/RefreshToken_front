@@ -1,145 +1,225 @@
-# Frontend – Sistema com Autenticação 🔐⚛️
+# Sistema de Autenticação Completo  
+## Backend com Fastify + Frontend com React e TypeScript
 
-Este repositório contém o **frontend** de uma aplicação web desenvolvida em **React + TypeScript**, com foco em autenticação de usuários (login, proteção de rotas e logout).
+Este repositório contém a implementação completa de um **sistema de autenticação moderno**, dividido em **backend** e **frontend**, utilizando autenticação baseada em **JWT (Access Token e Refresh Token)** e controle de sessão com **Redis**.
 
-O projeto consome uma API backend externa e **não utiliza `.env` no frontend**. Tudo funciona diretamente apontando para a URL da API configurada no serviço Axios.
+O projeto foi desenvolvido com fins acadêmicos, aplicando conceitos fundamentais de segurança, arquitetura cliente-servidor e consumo de APIs REST.
 
 ---
 
-## 🧠 Tecnologias Utilizadas
+# 📌 Visão Geral da Arquitetura
 
+[ Frontend (React) ]
+|
+| HTTP + JWT
+v
+[ Backend (Fastify) ] ---- Redis (Docker)
+
+yaml
+Copiar código
+
+- O **frontend** é responsável pela interface e controle de sessão do usuário
+- O **backend** valida credenciais, gera tokens e gerencia sessões
+- O **Redis** armazena o Access Token com TTL para invalidação automática
+
+---
+
+# 🚀 Tecnologias Utilizadas
+
+## Backend
+- Node.js
+- TypeScript
+- Fastify
+- JWT (jsonwebtoken)
+- bcrypt
+- Redis
+- Docker
+
+## Frontend
 - React
 - TypeScript
 - Vite
-- React Router DOM
 - Axios
-- CSS puro (App.css / index.css / login.css)
-- LocalStorage para gerenciamento de tokens
+- React Router DOM
+- CSS puro
 
 ---
 
-## 📁 Estrutura Básica do Projeto
+# 🔐 Backend – Autenticação e Sessão
 
+## Funcionalidades Implementadas
+
+- Login com email e senha
+- Geração de Access Token (curta duração)
+- Geração de Refresh Token (longa duração)
+- Armazenamento do Access Token no Redis com TTL
+- Renovação automática da sessão
+- Rotas protegidas
+- Logout com invalidação da sessão
+
+---
+
+## 📌 Endpoints do Backend
+
+### 🔑 POST `/auth/login`
+Realiza autenticação do usuário.
+
+**Body:**
+```json
+{
+  "email": "aluno@ifpi.edu.br",
+  "password": "123456"
+}
+Retorno:
+
+json
+Copiar código
+{
+  "accessToken": "...",
+  "refreshToken": "..."
+}
+🔒 GET /auth/protected
+Rota protegida por autenticação.
+
+Header:
+
+makefile
+Copiar código
+Authorization: Bearer <accessToken>
+🔁 POST /auth/refresh
+Renova o Access Token usando o Refresh Token.
+
+Body:
+
+json
+Copiar código
+{
+  "refreshToken": "..."
+}
+🚪 POST /auth/logout
+Finaliza a sessão do usuário.
+
+🗄️ Redis e Controle de Sessão
+Cada Access Token é salvo no Redis com TTL
+
+Se o token expirar ou for removido, a sessão é invalidada
+
+Logout remove o token manualmente
+
+▶️ Como Rodar o Backend
+bash
+Copiar código
+npm install
+docker run -d -p 6379:6379 redis
+npm run dev
+Backend disponível em:
+
+arduino
+Copiar código
+http://localhost:3000
+🖥️ Frontend – Interface de Autenticação
+Funcionalidades
+Tela de login estilizada
+
+Feedback visual de sucesso e erro
+
+Armazenamento de tokens no LocalStorage
+
+Proteção de rotas privadas
+
+Consumo automático da API
+
+Logout funcional
+
+📂 Estrutura do Frontend
+pgsql
+Copiar código
 src/
 ├── pages/
-│ └── Login.tsx
+│   └── Login.tsx
 ├── routes/
-│ └── PrivateRoute.tsx
+│   └── PrivateRoute.tsx
 ├── services/
-│ └── api.ts
+│   └── api.ts
 ├── styles/
-│ └── login.css
+│   └── login.css
 ├── App.tsx
-├── main.tsx
+🔐 Proteção de Rotas
+Rotas privadas verificam se existe um accessToken válido no navegador.
+Caso não exista, o usuário é redirecionado para a tela de login.
 
+🔁 Uso do Refresh Token no Frontend
+O Access Token é usado em todas as requisições
 
+Quando ele expira, o Refresh Token pode ser utilizado para gerar um novo
 
----
+Isso evita que o usuário precise logar novamente constantemente
 
-## 🔐 Funcionalidades Implementadas
-
-- Tela de login com feedback visual:
-  - Mensagem de erro (vermelha)
-  - Mensagem de sucesso (verde)
-- Autenticação via API (`/auth/login`)
-- Armazenamento de `accessToken` e `refreshToken` no `localStorage`
-- Proteção de rotas com `PrivateRoute`
-- Logout limpando tokens e redirecionando para `/login`
-- Redirecionamento automático após login bem-sucedido
-
----
-
-## ▶️ Como Rodar o Projeto Localmente
-
-### 1️⃣ Clone o repositório
-
-git clone https://github.com/seu-usuario/seu-repositorio.git
-
----
-
-2️⃣ Entre na pasta do projeto
-
-cd nome-do-projeto
-
----
-
-3️⃣ Instale as dependências
-
+▶️ Como Rodar o Frontend
+bash
+Copiar código
 npm install
-
-4️⃣ Rode o projeto
-
 npm run dev
+Frontend disponível em:
 
-
-O frontend estará disponível em:
-
+arduino
+Copiar código
 http://localhost:5173
+🔧 Configuração da API no Frontend
+Arquivo:
 
-
-🔗 Configuração da API
-
-O frontend se comunica com o backend através do arquivo:
-
+bash
+Copiar código
 src/services/api.ts
-
+ts
+Copiar código
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3333",
+  baseURL: "http://localhost:3000",
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default api;
+🎯 Fluxo Completo de Autenticação
+Usuário realiza login
 
+Backend valida credenciais
 
-👉 Altere apenas o baseURL para apontar para sua API (local ou em produção).
+Tokens são gerados
 
+Access Token é salvo no Redis
 
-🚪 Logout
+Frontend armazena tokens
 
-A função de logout remove os tokens e redireciona o usuário:
+Rotas protegidas validam o token
 
-export function logout() {
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("refreshToken");
-  window.location.href = "/login";
-}
+Sessão pode ser renovada automaticamente
 
+Logout invalida a sessão
 
+📌 Considerações Finais
+Este projeto demonstra, de forma prática, a aplicação de:
 
-🛡️ Proteção de Rotas
+Autenticação segura
 
-Rotas privadas são protegidas usando o componente PrivateRoute, que verifica a existência do accessToken no localStorage.
+Controle de sessão
 
-Usuário sem token:
-➡️ redirecionado automaticamente para /login.
+Integração frontend-backend
 
-📝 Observações Importantes
+Uso de cache para gerenciamento de tokens
 
-Este projeto não possui .env no frontend
-
-Toda a autenticação depende do backend
-
-Tokens são armazenados no localStorage
-
-Ideal para projetos acadêmicos, MVPs e sistemas administrativos
-
-🚀 Possíveis Melhorias Futuras
-
-Refresh token automático via interceptor
-
-Context API para autenticação
-
-Toasts de feedback
-
-Logout automático ao receber 401
-
-Melhor controle de loading
+Boas práticas em aplicações web modernas
 
 👨‍💻 Autor
-
-Projeto desenvolvido para fins de estudo e prática com React, TypeScript e autenticação baseada em tokens.
-
+Projeto desenvolvido para fins acadêmicos, com foco em aprendizado prático de autenticação, segurança e desenvolvimento web full stack.
 
 
 
