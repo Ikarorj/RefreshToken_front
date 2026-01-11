@@ -1,12 +1,16 @@
 import { useState } from "react";
 import api from "../services/api";
-
+import "../App.css";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
+    setSuccess("");
 
     try {
       const response = await api.post("/auth/login", {
@@ -14,34 +18,56 @@ export default function Login() {
         password,
       });
 
-      const { accessToken, refreshToken } = response.data;
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
 
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
+      setSuccess("Login realizado com sucesso! Redirecionando...");
 
-      window.location.href = "/dashboard";
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Erro no login");
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1500);
+    } catch {
+      setError("Email ou senha inválidos.");
     }
   }
 
   return (
-    <form onSubmit={handleLogin}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+    <div className="login-container">
+      <div className="login-card">
+        <h2>Login</h2>
 
-      <input
-        type="password"
-        placeholder="Senha"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-      <button type="submit">Entrar</button>
-    </form>
+          <input
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          {error && (
+            <div className="feedback error-feedback">
+              ❌ {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="feedback success-feedback">
+              ✅ {success}
+            </div>
+          )}
+
+          <button type="submit">Entrar</button>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-
+import "../App.css";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -18,6 +18,7 @@ export default function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
+      <p>se veio para cá, é porque funcionou kkkk</p>
       {user && <p>Bem-vindo, {user.email}</p>}
     </div>
   );

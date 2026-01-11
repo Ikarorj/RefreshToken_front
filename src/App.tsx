@@ -1,57 +1,27 @@
-import { useState } from "react";
-import axios from "axios";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import { PrivateRoute } from "../src/routes/privateRoute";
 
 function App() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-
-    try {
-      const response = await axios.post("http://localhost:3000/auth/login", {
-        email,
-        password,
-      });
-
-      const { accessToken, refreshToken } = response.data;
-
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-
-      setMessage("Login realizado com sucesso!");
-    } catch (err: any) {
-      setMessage(err.response?.data?.error || "Erro no login");
-    }
-  }
-
   return (
-    <div style={{ maxWidth: 400, margin: "100px auto" }}>
-      <h2>Login</h2>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
         />
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        />
-
-        <button type="submit">Entrar</button>
-      </form>
-
-      {message && <p>{message}</p>}
-    </div>
+        {/* rota padrão */}
+        <Route path="*" element={<Login />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

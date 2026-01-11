@@ -6,45 +6,63 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      const refreshToken = localStorage.getItem("refreshToken");
+    const originalRequest = error.config;
 
+    // 🚫 REGRA 1: NUNCA tentar refresh no login
+    if (originalRequest.url?.includes("/auth/login")) {
+      return Promise.reject(error);
+    }
+
+    // 🚫 REGRA 2: NUNCA tentar refresh no refresh
+    if (originalRequest.url?.includes("/auth/refresh")) {
+      return Promise.reject(error);
+    }
+
+    // 🔁 Só tenta refresh se for 401 e ainda não tentou antes
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      const refreshToken = localStorage.getItem("refreshToken");
       if (!refreshToken) {
-        localStorage.clear();
-        window.location.href = "/login";
+        logout();
         return Promise.reject(error);
       }
 
       try {
-        const { data } = await api.post("/auth/refresh", {
-          refreshToken,
-        });
+        const response = await axios.post(
+          "http://localhost:3000/auth/refresh",
+          { refreshToken }
+        );
 
-        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("accessToken", response.data.accessToken);
 
-        error.config.headers.Authorization =
-          `Bearer ${data.accessToken}`;
+        originalRequest.headers.Authorization =
+          `Bearer ${response.data.accessToken}`;
 
-        return api(error.config);
+        return api(originalRequest);
       } catch {
-        localStorage.clear();
-        window.location.href = "/login";
+        logout();
+        return Promise.reject(error);
       }
     }
 
     return Promise.reject(error);
   }
 );
+
+function logout() {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  window.location.href = "/login";
+}
 
 export default api;
